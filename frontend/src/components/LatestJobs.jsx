@@ -1,31 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 import LatestJobCards from "./LatestJobCards";
 import { JOB_API_END_POINT } from "../utils/constant";
 
 const LatestJobs = ({ query }) => {
   const [latestJobs, setLatestJobs] = useState([]);
+  const [error, setError] = useState(null);
 
   const fetchLatestJobs = async () => {
     try {
-      const response = await fetch(`${JOB_API_END_POINT}/latest`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
+      const response = await axios.get(`${JOB_API_END_POINT}/latest`, {
+        withCredentials: true
       });
 
-      const data = await response.json();
-      console.log("Fetched jobs data:", data); // ✅ DEBUG LOG
-
-      if (data.success && Array.isArray(data.jobs)) {
-        setLatestJobs(data.jobs);
+      if (response.data.success && Array.isArray(response.data.jobs)) {
+        setLatestJobs(response.data.jobs);
+        setError(null);
       } else {
-        console.error("Invalid job data format", data);
+        console.error("Invalid job data format", response.data);
+        setError("Failed to load jobs. Please try again later.");
       }
     } catch (error) {
       console.error("Error fetching latest jobs:", error);
+      setError("Failed to load jobs. Please try again later.");
+      setLatestJobs([]);
     }
   };
 
@@ -35,7 +34,7 @@ const LatestJobs = ({ query }) => {
 
   const filteredJobs = latestJobs.filter((job) => {
     const q = query?.toLowerCase().trim();
-    if (!q) return true; // if query is empty, return all jobs
+    if (!q) return true;
 
     const combinedValues = [
       job.title,
@@ -54,8 +53,6 @@ const LatestJobs = ({ query }) => {
     return combinedValues.includes(q);
   });
 
-  console.log("Filtered Jobs:", filteredJobs); // ✅ DEBUG LOG
-
   return (
     <div className="bg-black text-white py-16">
       <div className="container mx-auto text-center px-4">
@@ -64,10 +61,16 @@ const LatestJobs = ({ query }) => {
           Openings
         </h1>
 
+        {error && (
+          <div className="text-red-500 mb-4">
+            {error}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredJobs.length <= 0 ? (
             <span className="col-span-full text-gray-400 text-lg">
-              No Job Available
+              {error ? "Error loading jobs" : "No Jobs Available"}
             </span>
           ) : (
             filteredJobs.map((job) => (
