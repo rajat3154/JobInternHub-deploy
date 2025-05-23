@@ -19,6 +19,7 @@ import { Skeleton } from "./ui/skeleton";
 import { Separator } from "./ui/separator";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { STUDENT_API_END_POINT, RECRUITER_API_END_POINT, USER_API_END_POINT } from "../utils/constant";
 import {
   Popover,
   PopoverContent,
@@ -54,15 +55,10 @@ const Profile = () => {
       try {
         setLoading(true);
         const endpoint = userId && userType
-          ? `http://localhost:8000/api/v1/${userType.toLowerCase()}/${userId}`
-          : `http://localhost:8000/api/v1/${currentUser.role.toLowerCase()}/${currentUser._id}`;
+          ? `${userType.toLowerCase() === 'student' ? STUDENT_API_END_POINT : RECRUITER_API_END_POINT}/${userId}`
+          : `${currentUser.role.toLowerCase() === 'student' ? STUDENT_API_END_POINT : RECRUITER_API_END_POINT}/${currentUser._id}`;
 
-        const response = await axios.get(endpoint, {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true
-        });
+        const response = await axios.get(endpoint);
         setProfileUser(response.data.data);
       } catch (error) {
         console.error('Error fetching user profile:', error);
@@ -84,14 +80,8 @@ const Profile = () => {
         setFollowingLoading(true);
 
         const [followersRes, followingRes] = await Promise.all([
-          axios.get(`http://localhost:8000/api/v1/follow/followers/${profileUser._id}/${profileUser.role}`, {
-            headers: { "Content-Type": "application/json" },
-            withCredentials: true
-          }),
-          axios.get(`http://localhost:8000/api/v1/follow/following/${profileUser._id}/${profileUser.role}`, {
-            headers: { "Content-Type": "application/json" },
-            withCredentials: true
-          })
+          axios.get(`${USER_API_END_POINT}/follow/followers/${profileUser._id}/${profileUser.role}`),
+          axios.get(`${USER_API_END_POINT}/follow/following/${profileUser._id}/${profileUser.role}`)
         ]);
 
         setFollowers(followersRes.data.data);

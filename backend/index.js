@@ -24,19 +24,17 @@ app.use(cookieParser());
 
 // CORS configuration
 const corsOptions = {
-      origin: function (origin, callback) {
+      origin: function(origin, callback) {
             const allowedOrigins = [
                   'https://jobinternhub.vercel.app',
                   'http://localhost:5173',
                   process.env.FRONTEND_URL
-            ].filter(Boolean); // Remove any undefined values
+            ].filter(Boolean);
 
-            console.log('Request origin:', origin);
-            
             // Allow requests with no origin (like mobile apps or curl requests)
             if (!origin) return callback(null, true);
-            
-            if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+
+            if (allowedOrigins.indexOf(origin) !== -1) {
                   callback(null, true);
             } else {
                   console.log('Origin not allowed:', origin);
@@ -56,11 +54,16 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions)); // Enable pre-flight for all routes
 
 app.get('/api/v1/test-cors', (req, res) => {
-      res.json({ message: 'CORS is working!' });
+      res.json({ 
+            message: 'CORS is working!',
+            frontendUrl: process.env.FRONTEND_URL,
+            allowedOrigins: corsOptions.origin
+      });
 });
 
 const PORT = process.env.PORT || 8000;
 
+// Routes
 app.use("/api/v1", studentRoute);
 app.use("/api/v1/job", jobRoute);
 app.use("/api/v1/application", applicationRoute);
@@ -76,7 +79,8 @@ app.use((err, req, res, next) => {
             return res.status(403).json({
                   success: false,
                   message: 'CORS error: Origin not allowed',
-                  origin: req.headers.origin
+                  origin: req.headers.origin,
+                  allowedOrigins: corsOptions.origin
             });
       }
       res.status(500).json({

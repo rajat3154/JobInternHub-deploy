@@ -6,11 +6,16 @@ dotenv.config();
 // Authentication Middleware
 const isAuthenticated = async (req, res, next) => {
       try {
+            // Debug request headers and cookies
+            console.log('Request headers:', req.headers);
+            console.log('Request cookies:', req.cookies);
+
             // Retrieve token from cookies
             const token = req.cookies.token;
-            console.log(token)
+            
             // Check if token exists
             if (!token) {
+                  console.log('No token found in cookies');
                   return res.status(401).json({
                         message: "User not authenticated, token missing",
                         success: false,
@@ -19,9 +24,11 @@ const isAuthenticated = async (req, res, next) => {
 
             // Verify the token
             const decoded = jwt.verify(token, process.env.SECRET_KEY);
+            console.log('Decoded token:', decoded);
 
             // Ensure the decoded token has the required userId
             if (!decoded || !decoded.userId) {
+                  console.log('Invalid token or missing userId');
                   return res.status(401).json({
                         message: "Invalid token or missing userId",
                         success: false,
@@ -31,7 +38,7 @@ const isAuthenticated = async (req, res, next) => {
             // Attach the user info to the request
             req.user = {
                   id: decoded.userId,
-                  role: decoded.role, // Assuming role exists in the token
+                  role: decoded.role,
             };
 
             // Debug log for verification
@@ -42,13 +49,13 @@ const isAuthenticated = async (req, res, next) => {
 
       } catch (error) {
             console.error("Authentication Error:", error.message);
-            return res.status(500).json({
-                  message: "Internal server error",
+            return res.status(401).json({
+                  message: "Authentication failed",
                   success: false,
+                  error: error.message
             });
       }
 };
-
 
 export default isAuthenticated;
 
