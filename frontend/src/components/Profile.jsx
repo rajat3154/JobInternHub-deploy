@@ -59,16 +59,25 @@ const Profile = () => {
           : `${currentUser.role.toLowerCase() === 'student' ? STUDENT_API_END_POINT : RECRUITER_API_END_POINT}/${currentUser._id}`;
 
         console.log('Fetching profile from:', endpoint);
+        const token = localStorage.getItem('token');
+        console.log('Token for profile fetch:', token ? 'Present' : 'Missing');
+
         const response = await axios.get(endpoint, {
           withCredentials: true,
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
+            Authorization: `Bearer ${token}`
           }
         });
         console.log('Profile response:', response.data);
         setProfileUser(response.data.data);
       } catch (error) {
         console.error('Error fetching user profile:', error);
+        if (error.response?.status === 401) {
+          // Clear stored data and redirect to login
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          navigate('/login');
+        }
         toast.error('Failed to load profile');
       } finally {
         setLoading(false);
@@ -78,7 +87,7 @@ const Profile = () => {
     if (currentUser?._id) {
       fetchUserProfile();
     }
-  }, [userId, userType, currentUser]);
+  }, [userId, userType, currentUser, navigate]);
 
   useEffect(() => {
     const fetchFollowData = async () => {

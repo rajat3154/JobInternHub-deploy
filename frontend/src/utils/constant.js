@@ -14,9 +14,6 @@ axios.interceptors.request.use(
     console.log('URL:', config.url);
     console.log('Method:', config.method);
     
-    // Ensure withCredentials is set
-    config.withCredentials = true;
-    
     // Get token from localStorage
     const token = localStorage.getItem('token');
     console.log('Token from localStorage:', token ? 'Present' : 'Missing');
@@ -24,6 +21,9 @@ axios.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Ensure withCredentials is set
+    config.withCredentials = true;
     
     console.log('Request Headers:', config.headers);
     console.log('With Credentials:', config.withCredentials);
@@ -45,7 +45,7 @@ axios.interceptors.response.use(
     console.log('Headers:', response.headers);
     console.log('Data:', response.data);
     
-    // Store token in localStorage
+    // Store token in localStorage if present in response
     if (response.data?.token) {
       console.log('Storing token in localStorage');
       localStorage.setItem('token', response.data.token);
