@@ -187,21 +187,23 @@ export const login = async (req, res) => {
                   httpOnly: true,
                   secure: true,
                   sameSite: "none",
-                  path: "/"
+                  path: "/",
+                  domain: "jobinternhub.onrender.com"
             };
 
             // Log cookie options for debugging
             console.log('Setting cookie with options:', cookieOptions);
 
-            return res
-                  .status(200)
-                  .cookie("token", token, cookieOptions)
-                  .json({
-                        message: welcomeMessage,
-                        success: true,
-                        user: userResponse,
-                        token // Send token in response body as well
-                  });
+            // Set the cookie
+            res.cookie("token", token, cookieOptions);
+
+            // Send the response
+            return res.status(200).json({
+                  message: welcomeMessage,
+                  success: true,
+                  user: userResponse,
+                  token
+            });
       } catch (error) {
             console.error("Login Error:", error.message);
             return res.status(500).json({
