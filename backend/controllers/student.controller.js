@@ -184,17 +184,17 @@ export const login = async (req, res) => {
             return res
                   .status(200)
                   .cookie("token", token, {
-                        maxAge: 24 * 60 * 60 * 1000,
+                        maxAge: 24 * 60 * 60 * 1000, // 1 day
                         httpOnly: true,
                         secure: process.env.NODE_ENV === "production",
-                        sameSite: "Lax",
+                        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+                        domain: process.env.NODE_ENV === "production" ? ".onrender.com" : undefined
                   })
                   .json({
                         message: welcomeMessage,
                         success: true,
                         user: userResponse,
-                        token,
-                        debugCookies: req.cookies,
+                        token
                   });
       } catch (error) {
             console.error("Login Error:", error.message);
