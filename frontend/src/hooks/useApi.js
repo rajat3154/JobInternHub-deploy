@@ -29,6 +29,10 @@ const useApi = () => {
       const user = getAuthData();
       console.log('Making request as user:', user?.email);
 
+      // Ensure URL is using the correct base URL
+      const baseUrl = 'https://jobinternhub.onrender.com';
+      const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+
       const config = {
         ...options,
         withCredentials: true,
@@ -41,16 +45,16 @@ const useApi = () => {
       let response;
       switch (method.toLowerCase()) {
         case 'get':
-          response = await axios.get(url, config);
+          response = await axios.get(fullUrl, config);
           break;
         case 'post':
-          response = await axios.post(url, data, config);
+          response = await axios.post(fullUrl, data, config);
           break;
         case 'put':
-          response = await axios.put(url, data, config);
+          response = await axios.put(fullUrl, data, config);
           break;
         case 'delete':
-          response = await axios.delete(url, config);
+          response = await axios.delete(fullUrl, config);
           break;
         default:
           throw new Error(`Unsupported method: ${method}`);

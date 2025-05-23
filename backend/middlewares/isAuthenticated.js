@@ -8,79 +8,60 @@ dotenv.config();
 // Authentication Middleware
 export const isAuthenticated = async (req, res, next) => {
       try {
-            console.log('=== Auth Middleware Start ===');
-            console.log('Request URL:', req.originalUrl);
-            console.log('Request Method:', req.method);
-            console.log('Request Headers:', req.headers);
-            console.log('Request Cookies:', req.cookies);
-            console.log('Request Origin:', req.headers.origin);
+            console.log('🔒 Auth Check - Headers:', req.headers);
+            console.log('🔒 Auth Check - Cookies:', req.cookies);
+            console.log('🔒 Auth Check - Origin:', req.headers.origin);
 
-            // Check for token in cookies first, then in Authorization header
+            // Get token from cookie or Authorization header
             const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
             
-            console.log('Token from request:', token ? 'Present' : 'Missing');
-            
             if (!token) {
-                  console.log('No token found in cookies or headers');
+                  console.log('❌ No token found');
                   return res.status(401).json({
                         success: false,
-                        message: "Please login first",
+                        message: "Not authorized to access this route",
                   });
             }
 
-            try {
-                  const decoded = jwt.verify(token, process.env.SECRET_KEY);
-                  console.log('Decoded token:', decoded);
-                  
-                  if (!decoded || !decoded.userId) {
-                        console.log('Invalid token structure:', decoded);
-                        return res.status(401).json({
-                              success: false,
-                              message: "Invalid token",
-                        });
-                  }
-
-                  // Find user based on role
-                  let user;
-                  if (decoded.role === "student") {
-                        user = await Student.findById(decoded.userId);
-                  } else if (decoded.role === "recruiter") {
-                        user = await Recruiter.findById(decoded.userId);
-                  }
-
-                  console.log('Found user:', user ? 'Yes' : 'No');
-                  if (!user) {
-                        console.log('User not found:', decoded.userId);
-                        return res.status(401).json({
-                              success: false,
-                              message: "User not found",
-                        });
-                  }
-
-                  // Attach user info to request
-                  req.user = {
-                        id: user._id,
-                        role: user.role,
-                        email: user.email
-                  };
-
-                  console.log('Authenticated user:', req.user);
-                  console.log('=== Auth Middleware End ===');
-                  next();
-            } catch (jwtError) {
-                  console.error('JWT Verification Error:', jwtError);
+            // Verify token
+            const decoded = jwt.verify(token, process.env.SECRET_KEY);
+            console.log('✅ Token decoded:', decoded);
+            
+            if (!decoded || !decoded.userId) {
+                  console.log('Invalid token structure:', decoded);
                   return res.status(401).json({
                         success: false,
-                        message: "Invalid or expired token",
-                        error: jwtError.message
+                        message: "Invalid token",
                   });
             }
+
+            // Get user based on role
+            let user;
+            if (decoded.role === "student") {
+                  user = await Student.findById(decoded.userId);
+            } else if (decoded.role === "recruiter") {
+                  user = await Recruiter.findById(decoded.userId);
+            }
+
+            if (!user) {
+                  console.log('❌ User not found');
+                  return res.status(401).json({
+                        success: false,
+                        message: "User not found",
+                  });
+            }
+
+            // Attach user to request
+            req.user = user;
+            req.id = user._id;
+            console.log('✅ User authenticated:', user.email);
+
+            next();
       } catch (error) {
-            console.error('Auth Error:', error);
+            console.error('❌ Auth Error:', error);
             return res.status(401).json({
                   success: false,
-                  message: "Authentication failed",
-                  error: error.message
+                  message: "Not authorized to access this route",
             });
       }
 };
