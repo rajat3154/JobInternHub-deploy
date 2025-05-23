@@ -186,9 +186,9 @@ export const login = async (req, res) => {
                   .cookie("token", token, {
                         maxAge: 24 * 60 * 60 * 1000, // 1 day
                         httpOnly: true,
-                        secure: process.env.NODE_ENV === "production",
-                        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                        domain: process.env.NODE_ENV === "production" ? ".onrender.com" : undefined
+                        secure: true,
+                        sameSite: "none",
+                        path: "/"
                   })
                   .json({
                         message: welcomeMessage,

@@ -6,10 +6,44 @@ import axios from 'axios';
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['Content-Type'] = 'application/json';
 
-// Add response interceptor to handle errors
-axios.interceptors.response.use(
-  (response) => response,
+// Add request interceptor to log requests and ensure credentials
+axios.interceptors.request.use(
+  (config) => {
+    // Ensure withCredentials is set
+    config.withCredentials = true;
+    
+    console.log('Request:', {
+      url: config.url,
+      method: config.method,
+      headers: config.headers,
+      withCredentials: config.withCredentials
+    });
+    return config;
+  },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor to handle errors and log responses
+axios.interceptors.response.use(
+  (response) => {
+    console.log('Response:', {
+      status: response.status,
+      headers: response.headers,
+      data: response.data,
+      cookies: document.cookie
+    });
+    return response;
+  },
+  (error) => {
+    console.error('Response Error:', {
+      status: error.response?.status,
+      data: error.response?.data,
+      headers: error.response?.headers,
+      cookies: document.cookie
+    });
+    
     if (error.response?.status === 401) {
       // Clear any stored user data
       localStorage.removeItem('user');
