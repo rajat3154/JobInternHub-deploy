@@ -181,14 +181,13 @@ export const login = async (req, res) => {
                         ? `Welcome back ${user.fullname}`
                         : `Welcome back ${user.companyname}`;
 
-            // Set cookie options
+            // Set cookie options for production
             const cookieOptions = {
                   maxAge: 24 * 60 * 60 * 1000, // 1 day
                   httpOnly: true,
                   secure: true,
                   sameSite: "none",
-                  path: "/",
-                  domain: "jobinternhub.onrender.com"
+                  path: "/"
             };
 
             // Log cookie options for debugging

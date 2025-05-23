@@ -12,6 +12,12 @@ axios.interceptors.request.use(
     // Ensure withCredentials is set
     config.withCredentials = true;
     
+    // Get token from localStorage as backup
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    
     // Log request details
     console.log('Request:', {
       url: config.url,
@@ -39,6 +45,12 @@ axios.interceptors.response.use(
       cookies: document.cookie
     });
 
+    // Store token in localStorage as backup
+    if (response.data?.token) {
+      console.log('Storing token in localStorage as backup');
+      localStorage.setItem('token', response.data.token);
+    }
+
     return response;
   },
   (error) => {
@@ -54,6 +66,7 @@ axios.interceptors.response.use(
     if (error.response?.status === 401) {
       console.log('Clearing stored data due to 401');
       // Clear stored data
+      localStorage.removeItem('token');
       localStorage.removeItem('user');
       
       // Redirect to login if not already there
@@ -68,8 +81,9 @@ axios.interceptors.response.use(
 // Function to check if user is authenticated
 export const isAuthenticated = () => {
   const hasCookie = document.cookie.includes('token=');
-  console.log('Auth check - Cookie present:', hasCookie);
-  return hasCookie;
+  const hasToken = localStorage.getItem('token');
+  console.log('Auth check - Cookie present:', hasCookie, 'Token present:', !!hasToken);
+  return hasCookie || !!hasToken;
 };
 
 export const USER_API_END_POINT = `${BACKEND_URL}/api/v1`;
