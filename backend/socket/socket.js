@@ -8,11 +8,24 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
+const allowedOrigins = [
+      'https://jobinternhub.vercel.app',
+      'http://localhost:5173',
+      process.env.FRONTEND_URL
+].filter(Boolean);
+
 const io = new Server(server, {
       cors: {
-            origin: [process.env.FRONTEND_URL],
-            methods: ["GET", "POST"],
-            credentials: true
+            origin: function(origin, callback) {
+                  if (!origin || allowedOrigins.includes(origin)) {
+                        callback(null, true);
+                  } else {
+                        callback(new Error('Not allowed by CORS'));
+                  }
+            },
+            methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            credentials: true,
+            allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin']
       }
 });
 
