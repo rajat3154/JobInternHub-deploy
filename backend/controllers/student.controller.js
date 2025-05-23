@@ -181,20 +181,26 @@ export const login = async (req, res) => {
                         ? `Welcome back ${user.fullname}`
                         : `Welcome back ${user.companyname}`;
 
+            // Set cookie options
+            const cookieOptions = {
+                  maxAge: 24 * 60 * 60 * 1000, // 1 day
+                  httpOnly: true,
+                  secure: true,
+                  sameSite: "none",
+                  path: "/"
+            };
+
+            // Log cookie options for debugging
+            console.log('Setting cookie with options:', cookieOptions);
+
             return res
                   .status(200)
-                  .cookie("token", token, {
-                        maxAge: 24 * 60 * 60 * 1000, // 1 day
-                        httpOnly: true,
-                        secure: true,
-                        sameSite: "none",
-                        path: "/"
-                  })
+                  .cookie("token", token, cookieOptions)
                   .json({
                         message: welcomeMessage,
                         success: true,
                         user: userResponse,
-                        token
+                        token // Send token in response body as well
                   });
       } catch (error) {
             console.error("Login Error:", error.message);
