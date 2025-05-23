@@ -8,6 +8,7 @@ import FollowButton from './FollowButton';
 import { useAuth } from '../context/AuthContext';
 import { Skeleton } from './ui/skeleton';
 import { motion } from 'framer-motion';
+import { STUDENT_API_END_POINT, RECRUITER_API_END_POINT, USER_API_END_POINT } from "../utils/constant";
 
 const UsersToFollow = () => {
     const [users, setUsers] = useState([]);
@@ -24,11 +25,11 @@ const UsersToFollow = () => {
 
                 // Fetch all users
                 const [studentsRes, recruitersRes] = await Promise.all([
-                    axios.get("http://localhost:8000/api/v1/student/students", {
+                    axios.get(`${STUDENT_API_END_POINT}/students`, {
                         headers: { "Content-Type": "application/json" },
                         withCredentials: true
                     }),
-                    axios.get("http://localhost:8000/api/v1/recruiter/recruiters", {
+                    axios.get(`${RECRUITER_API_END_POINT}/recruiters`, {
                         headers: { "Content-Type": "application/json" },
                         withCredentials: true
                     })
@@ -36,7 +37,7 @@ const UsersToFollow = () => {
 
                 // Fetch current user's following list
                 const followingRes = await axios.get(
-                    `http://localhost:8000/api/v1/follow/following/${user._id}/${user.role}`,
+                    `${USER_API_END_POINT}/follow/following/${user._id}/${user.role}`,
                     {
                         headers: { "Content-Type": "application/json" },
                         withCredentials: true

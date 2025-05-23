@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { toast } from "sonner";
 import { Check, X } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import axios from "axios";
 
 import Navbar from "./shared/Navbar";
 import {
@@ -240,15 +241,12 @@ const Admin = () => {
       return;
 
     try {
-      const response = await fetch(
-        `http://localhost:8000/api/v1/students/${id}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        }
+      const response = await axios.delete(
+        `${STUDENT_API_END_POINT}/${id}`,
+        { withCredentials: true }
       );
 
-      const data = await response.json();
+      const data = await response.data;
 
       if (!response.ok) {
         throw new Error(data.message || "Failed to delete student");
@@ -267,15 +265,12 @@ const Admin = () => {
       return;
 
     try {
-      const response = await fetch(
-        `http://localhost:8000/api/v1/recruiter/${id}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        }
+      const response = await axios.delete(
+        `${RECRUITER_API_END_POINT}/${id}`,
+        { withCredentials: true }
       );
 
-      const data = await response.json();
+      const data = await response.data;
 
       if (!response.ok) {
         throw new Error(data.message || "Failed to delete recruiter");

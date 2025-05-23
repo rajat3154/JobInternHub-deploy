@@ -14,6 +14,7 @@ import { Input } from "../ui/input";
 import { motion } from "framer-motion";
 import Navbar from "../shared/Navbar";
 import { io } from "socket.io-client";
+import { STUDENT_API_END_POINT, RECRUITER_API_END_POINT, USER_API_END_POINT } from "../../utils/constant";
 
 const ChatHome = () => {
   const { user } = useSelector((store) => store.auth);
@@ -72,7 +73,7 @@ const Sidebar = ({ unreadCounts, setUnreadCounts }) => {
     if (!authUser?._id) return;
 
     // Initialize socket connection
-    socket.current = io("http://localhost:8000", {
+    socket.current = io(import.meta.env.VITE_BACKEND_URL, {
       query: { userId: authUser._id },
       withCredentials: true
     });
@@ -111,10 +112,10 @@ const Sidebar = ({ unreadCounts, setUnreadCounts }) => {
         setLoading(true);
 
         const [studentsRes, recruitersRes] = await Promise.all([
-          axios.get(`http://localhost:8000/api/v1/student/students`, {
+          axios.get(`${STUDENT_API_END_POINT}/students`, {
             withCredentials: true,
           }),
-          axios.get(`http://localhost:8000/api/v1/recruiter/recruiters`, {
+          axios.get(`${RECRUITER_API_END_POINT}/recruiters`, {
             withCredentials: true,
           }),
         ]);
@@ -166,7 +167,7 @@ const Sidebar = ({ unreadCounts, setUnreadCounts }) => {
 
   const logoutHandler = async () => {
     try {
-      await axios.get(`http://localhost:8000/api/v1/logout`, {
+      await axios.get(`${USER_API_END_POINT}/logout`, {
         withCredentials: true,
       });
       navigate("/login");
@@ -397,7 +398,7 @@ const MessageContainer = ({ unreadCounts, setUnreadCounts }) => {
   useEffect(() => {
     if (!authUser?._id) return;
 
-    const newSocket = io("http://localhost:8000", {
+    const newSocket = io(import.meta.env.VITE_BACKEND_URL, {
       query: { userId: authUser._id },
       withCredentials: true
     });

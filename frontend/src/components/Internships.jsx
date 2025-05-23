@@ -6,6 +6,7 @@ import PostInternship from "./recruiter/PostInternship";
 import { Button } from "./ui/button";
 import { setAllInternships } from "../redux/internshipSlice";
 import LatestInternshipCards from "./LatestInternshipCards";
+import { INTERNSHIP_API_END_POINT } from "../utils/constant";
 
 const Internships = () => {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ const Internships = () => {
   const fetchInternships = async () => {
     try {
       const response = await fetch(
-        "http://localhost:8000/api/v1/internship/get",
+        `${INTERNSHIP_API_END_POINT}/get`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },
@@ -38,7 +39,7 @@ const Internships = () => {
   const fetchRecruiterInternships = async () => {
     try {
       const response = await fetch(
-        "http://localhost:8000/api/v1/internship/recruiter",
+        `${INTERNSHIP_API_END_POINT}/recruiter`,
         {
           method: "GET",
           headers: { "Content-Type": "application/json" },

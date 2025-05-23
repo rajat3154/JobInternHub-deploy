@@ -5,6 +5,7 @@ import { SendIcon } from "lucide-react";
 import axios from "axios";
 import { setMessages } from "../../redux/messageSlice";
 import { io } from "socket.io-client";
+import { USER_API_END_POINT } from "../../utils/constant";
 
 const MessageContainer = () => {
       const { selectedUser } = useSelector((state) => state.auth);
@@ -21,7 +22,7 @@ const MessageContainer = () => {
       useEffect(() => {
             if (!authUser?._id) return;
 
-            const newSocket = io("http://localhost:8000", {
+            const newSocket = io(import.meta.env.VITE_BACKEND_URL, {
                   query: {
                         userId: authUser._id
                   },
@@ -77,7 +78,7 @@ const MessageContainer = () => {
                         setLoading(true);
                         setError(null);
                         const response = await axios.get(
-                              `http://localhost:8000/api/v1/messages/${selectedUser._id}`,
+                              `${USER_API_END_POINT}/messages/${selectedUser._id}`,
                               { withCredentials: true }
                         );
                         
@@ -115,7 +116,7 @@ const MessageContainer = () => {
             try {
                   setError(null);
                   const response = await axios.post(
-                        `http://localhost:8000/api/v1/messages/send/${selectedUser._id}`,
+                        `${USER_API_END_POINT}/messages/send/${selectedUser._id}`,
                         { message: newMessage.trim() },
                         { withCredentials: true }
                   );

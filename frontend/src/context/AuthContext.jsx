@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
+import { USER_API_END_POINT } from "../utils/constant";
 
 const AuthContext = createContext();
 
@@ -10,7 +11,7 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/api/v1/check-auth', { 
+                const response = await axios.get(`${USER_API_END_POINT}/check-auth`, { 
                     withCredentials: true,
                     headers: {
                         "Content-Type": "application/json",
@@ -32,7 +33,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password) => {
         try {
-            const response = await axios.post('http://localhost:8000/api/v1/login', 
+            const response = await axios.post(`${USER_API_END_POINT}/login`, 
                 { email, password }, 
                 { 
                     withCredentials: true,
@@ -57,7 +58,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            await axios.get('http://localhost:8000/api/v1/logout', { 
+            await axios.get(`${USER_API_END_POINT}/logout`, { 
                 withCredentials: true,
                 headers: {
                     "Content-Type": "application/json",

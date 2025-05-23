@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import LatestJobCards from "./LatestJobCards";
+import { JOB_API_END_POINT } from "../utils/constant";
 
 const LatestJobs = ({ query }) => {
   const [latestJobs, setLatestJobs] = useState([]);
 
   const fetchLatestJobs = async () => {
     try {
-      const response = await fetch("http://localhost:8000/api/v1/job/latest", {
+      const response = await fetch(`${JOB_API_END_POINT}/latest`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

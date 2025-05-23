@@ -8,6 +8,7 @@ import { setOtherUsers, setSelectedUser, setUser } from "../../redux/authSlice";
 import { setMessages } from "../../redux/messageSlice";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { motion } from "framer-motion";
+import { STUDENT_API_END_POINT, RECRUITER_API_END_POINT, USER_API_END_POINT } from "../../utils/constant";
 
 const Sidebar = () => {
   const [search, setSearch] = useState("");
@@ -24,10 +25,10 @@ const Sidebar = () => {
 
         // Fetch both students and recruiters
         const [studentsRes, recruitersRes] = await Promise.all([
-          axios.get(`http://localhost:8000/api/v1/student/students`, {
+          axios.get(`${STUDENT_API_END_POINT}/students`, {
             withCredentials: true,
           }),
-          axios.get(`http://localhost:8000/api/v1/recruiter/recruiters`, {
+          axios.get(`${RECRUITER_API_END_POINT}/recruiters`, {
             withCredentials: true,
           }),
         ]);
@@ -87,7 +88,7 @@ const Sidebar = () => {
 
   const logoutHandler = async () => {
     try {
-      const res = await axios.get(`http://localhost:8000/api/v1/logout`, {
+      const res = await axios.get(`${USER_API_END_POINT}/logout`, {
         withCredentials: true,
       });
       navigate("/login");

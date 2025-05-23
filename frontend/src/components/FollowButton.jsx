@@ -5,6 +5,7 @@ import { Button } from './ui/button';
 import { Loader2, UserPlus, UserCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+import { USER_API_END_POINT } from "../utils/constant";
 
 const FollowButton = ({ userId, userType, onFollowSuccess, className, size = "sm" }) => {
     const [isFollowing, setIsFollowing] = useState(false);
@@ -18,7 +19,7 @@ const FollowButton = ({ userId, userType, onFollowSuccess, className, size = "sm
             try {
                 const userRole = user.role.charAt(0).toUpperCase() + user.role.slice(1);
                 const response = await axios.get(
-                    `http://localhost:8000/api/v1/follow/following/${user._id}/${userRole}`,
+                    `${USER_API_END_POINT}/follow/following/${user._id}/${userRole}`,
                     { headers: { "Content-Type": "application/json" }, withCredentials: true }
                 );
                 setIsFollowing(response.data.data?.some(follow => follow._id === userId));
@@ -49,7 +50,7 @@ const FollowButton = ({ userId, userType, onFollowSuccess, className, size = "sm
             const followingType = userType.charAt(0).toUpperCase() + userType.slice(1);
 
             const response = await axios.post(
-                `http://localhost:8000/api/v1/follow${endpoint}`,
+                `${USER_API_END_POINT}/follow${endpoint}`,
                 {
                     followerId: user._id,
                     followingId: userId,

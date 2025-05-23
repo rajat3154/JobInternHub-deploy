@@ -6,6 +6,7 @@ import { Card, CardContent } from './ui/card';
 import { Loader2, Users, UserCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { USER_API_END_POINT } from "../utils/constant";
 
 const FollowList = ({ userId, userType }) => {
     const [activeTab, setActiveTab] = useState('followers');
@@ -23,7 +24,7 @@ const FollowList = ({ userId, userType }) => {
         try {
             const capitalizedUserType = userType.charAt(0).toUpperCase() + userType.slice(1);
             const response = await axios.get(
-                `http://localhost:8000/api/v1/follow/${type}/${userId}/${capitalizedUserType}`,
+                `${USER_API_END_POINT}/follow/${type}/${userId}/${capitalizedUserType}`,
                 {
                     headers: { "Content-Type": "application/json" },
                     withCredentials: true
