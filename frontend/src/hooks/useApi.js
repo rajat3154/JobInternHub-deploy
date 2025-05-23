@@ -29,9 +29,11 @@ const useApi = () => {
       const user = getAuthData();
       console.log('Making request as user:', user?.email);
 
-      // Ensure URL is using the correct base URL
-      const baseUrl = 'https://jobinternhub.onrender.com';
+      // Use environment variable for backend URL
+      const baseUrl = import.meta.env.VITE_BACKEND_URL || 'https://jobinternhub.onrender.com';
       const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+
+      console.log('Making request to:', fullUrl);
 
       const config = {
         ...options,

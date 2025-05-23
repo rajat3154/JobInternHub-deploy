@@ -165,7 +165,7 @@ export const login = async (req, res) => {
                   httpOnly: true,
                   secure: true,
                   sameSite: "none",
-                  domain: ".onrender.com"
+                  path: "/"
             });
 
             // Prepare user response
