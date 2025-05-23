@@ -189,8 +189,8 @@ export const login = async (req, res) => {
             const cookieOptions = {
                   maxAge: 24 * 60 * 60 * 1000, // 1 day
                   httpOnly: true,
-                  secure: true,
-                  sameSite: "none",
+                  secure: process.env.NODE_ENV === "production",
+                  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
                   path: "/"
             };
 
@@ -206,7 +206,7 @@ export const login = async (req, res) => {
                   message: welcomeMessage,
                   success: true,
                   user: userResponse,
-                  token
+                  token // Include token in response for backup
             });
       } catch (error) {
             console.error("Login Error:", error.message);

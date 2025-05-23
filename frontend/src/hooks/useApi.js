@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 const useApi = () => {
   const [loading, setLoading] = useState(false);
@@ -15,7 +16,7 @@ const useApi = () => {
       const { auth } = JSON.parse(persistRoot);
       const authData = JSON.parse(auth);
       return {
-        token: localStorage.getItem('token'),
+        token: Cookies.get('token'),
         user: authData.user
       };
     } catch (err) {
@@ -60,6 +61,14 @@ const useApi = () => {
           throw new Error(`Unsupported method: ${method}`);
       }
 
+      if (response.data?.token) {
+        Cookies.set('token', response.data.token, {
+          expires: 1,
+          secure: true,
+          sameSite: 'strict'
+        });
+      }
+
       console.log(`${method.toUpperCase()} response:`, response.data);
       return response.data;
     } catch (err) {
@@ -68,8 +77,7 @@ const useApi = () => {
 
       if (err.response?.status === 401) {
         console.log('Authentication failed, redirecting to login');
-        // Clear all auth data
-        localStorage.removeItem('token');
+        Cookies.remove('token');
         localStorage.removeItem('persist:root');
         navigate('/login');
       }
