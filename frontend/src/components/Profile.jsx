@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
 import Navbar from "./shared/Navbar";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
@@ -20,6 +19,7 @@ import { Separator } from "./ui/separator";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import { STUDENT_API_END_POINT, RECRUITER_API_END_POINT, USER_API_END_POINT } from "../utils/constant";
+import useApi from "../hooks/useApi";
 import {
   Popover,
   PopoverContent,
@@ -49,6 +49,7 @@ const Profile = () => {
   const { appliedJobs, loading: jobsLoading } = useGetAppliedJobs();
   const { userId, userType } = useParams();
   const navigate = useNavigate();
+  const { get } = useApi();
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -59,25 +60,11 @@ const Profile = () => {
           : `${currentUser.role.toLowerCase() === 'student' ? STUDENT_API_END_POINT : RECRUITER_API_END_POINT}/${currentUser._id}`;
 
         console.log('Fetching profile from:', endpoint);
-        const token = localStorage.getItem('token');
-        console.log('Token for profile fetch:', token ? 'Present' : 'Missing');
-
-        const response = await axios.get(endpoint, {
-          withCredentials: true,
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
-        console.log('Profile response:', response.data);
-        setProfileUser(response.data.data);
+        const response = await get(endpoint);
+        console.log('Profile response:', response);
+        setProfileUser(response.data);
       } catch (error) {
         console.error('Error fetching user profile:', error);
-        if (error.response?.status === 401) {
-          // Clear stored data and redirect to login
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          navigate('/login');
-        }
         toast.error('Failed to load profile');
       } finally {
         setLoading(false);
@@ -87,7 +74,7 @@ const Profile = () => {
     if (currentUser?._id) {
       fetchUserProfile();
     }
-  }, [userId, userType, currentUser, navigate]);
+  }, [userId, userType, currentUser, navigate, get]);
 
   useEffect(() => {
     const fetchFollowData = async () => {
@@ -98,12 +85,12 @@ const Profile = () => {
         setFollowingLoading(true);
 
         const [followersRes, followingRes] = await Promise.all([
-          axios.get(`${USER_API_END_POINT}/follow/followers/${profileUser._id}/${profileUser.role}`),
-          axios.get(`${USER_API_END_POINT}/follow/following/${profileUser._id}/${profileUser.role}`)
+          get(`${USER_API_END_POINT}/follow/followers/${profileUser._id}/${profileUser.role}`),
+          get(`${USER_API_END_POINT}/follow/following/${profileUser._id}/${profileUser.role}`)
         ]);
 
-        setFollowers(followersRes.data.data);
-        setFollowing(followingRes.data.data);
+        setFollowers(followersRes.data);
+        setFollowing(followingRes.data);
       } catch (error) {
         console.error('Error fetching follow data:', error);
         toast.error('Failed to load connections');
@@ -114,7 +101,7 @@ const Profile = () => {
     };
 
     fetchFollowData();
-  }, [profileUser]);
+  }, [profileUser, get]);
 
   // Add click outside handler
   useEffect(() => {

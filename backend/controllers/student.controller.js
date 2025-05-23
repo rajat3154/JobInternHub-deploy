@@ -316,3 +316,35 @@ export const getOtherUsers = async (req, res) => {
             console.log(error);
       }
   }
+
+export const getProfile = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    console.log('Fetching profile for user:', userId);
+
+    // Determine if we're looking for a student or recruiter
+    const userModel = req.params.type === 'student' ? Student : Recruiter;
+    
+    const user = await userModel.findById(userId).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    console.log('Found user:', user.email);
+    return res.status(200).json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching profile",
+      error: error.message
+    });
+  }
+};
