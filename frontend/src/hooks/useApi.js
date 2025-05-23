@@ -1,45 +1,23 @@
 import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
 
 const useApi = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  const getAuthData = () => {
-    try {
-      const persistRoot = localStorage.getItem('persist:root');
-      if (!persistRoot) return { token: null, user: null };
-
-      const { auth } = JSON.parse(persistRoot);
-      const authData = JSON.parse(auth);
-      return {
-        token: Cookies.get('token'),
-        user: authData.user
-      };
-    } catch (err) {
-      console.error('Error parsing auth data:', err);
-      return { token: null, user: null };
-    }
-  };
-
   const apiCall = async (method, url, data = null, options = {}) => {
     try {
       setLoading(true);
       setError(null);
 
-      const { token, user } = getAuthData();
-      console.log(`Making ${method.toUpperCase()} request to ${url}`);
-      console.log('Auth data:', { token: !!token, user: !!user });
-
       const config = {
         ...options,
-        withCredentials: true,
+        withCredentials: true, // Important for cookies
         headers: {
           ...options.headers,
-          Authorization: token ? `Bearer ${token}` : undefined
+          'Content-Type': 'application/json'
         }
       };
 
@@ -61,23 +39,13 @@ const useApi = () => {
           throw new Error(`Unsupported method: ${method}`);
       }
 
-      if (response.data?.token) {
-        Cookies.set('token', response.data.token, {
-          expires: 1,
-          secure: true,
-          sameSite: 'strict'
-        });
-      }
-
-      console.log(`${method.toUpperCase()} response:`, response.data);
       return response.data;
     } catch (err) {
       console.error(`API Error (${method.toUpperCase()} ${url}):`, err);
       setError(err.response?.data?.message || err.message);
 
       if (err.response?.status === 401) {
-        console.log('Authentication failed, redirecting to login');
-        Cookies.remove('token');
+        // Clear auth data and redirect to login
         localStorage.removeItem('persist:root');
         navigate('/login');
       }

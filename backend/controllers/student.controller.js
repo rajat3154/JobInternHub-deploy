@@ -185,28 +185,21 @@ export const login = async (req, res) => {
                         ? `Welcome back ${user.fullname}`
                         : `Welcome back ${user.companyname}`;
 
-            // Set cookie options
-            const cookieOptions = {
+            // Set cookie for deployed website
+            res.cookie("token", token, {
                   maxAge: 24 * 60 * 60 * 1000, // 1 day
                   httpOnly: true,
-                  secure: process.env.NODE_ENV === "production",
-                  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-                  path: "/"
-            };
+                  secure: true,
+                  sameSite: "none",
+                  domain: ".onrender.com" // For your deployed backend
+            });
 
-            console.log('Setting cookie with options:', cookieOptions);
-            console.log('Request headers:', req.headers);
-            console.log('Request origin:', req.headers.origin);
-
-            // Set the cookie
-            res.cookie("token", token, cookieOptions);
-
-            // Send the response
+            // Send response
             return res.status(200).json({
                   message: welcomeMessage,
                   success: true,
                   user: userResponse,
-                  token // Include token in response for backup
+                  token // Include token in response as backup
             });
       } catch (error) {
             console.error("Login Error:", error.message);
