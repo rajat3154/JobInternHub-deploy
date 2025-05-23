@@ -24,12 +24,28 @@ app.use(cookieParser());
 
 // CORS configuration
 const corsOptions = {
-      origin: ['https://jobinternhub.vercel.app', 'http://localhost:5173'],
-      credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
-      exposedHeaders: ['Content-Range', 'X-Content-Range'],
-      maxAge: 86400 // 24 hours
+  origin: function(origin, callback) {
+    const allowedOrigins = [
+      'https://jobinternhub.vercel.app',
+      'http://localhost:5173',
+      'http://localhost:8000'
+    ];
+    
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      console.log('Origin not allowed:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  maxAge: 86400 // 24 hours
 };
 
 app.use(cors(corsOptions));
@@ -39,13 +55,23 @@ app.options('*', cors(corsOptions)); // Enable pre-flight for all routes
 
 // Add a test route to verify authentication
 app.get('/api/v1/test-auth', (req, res) => {
-      console.log('Cookies:', req.cookies);
-      console.log('Headers:', req.headers);
-      res.json({ 
-            message: 'Auth test route',
-            cookies: req.cookies,
-            headers: req.headers
-      });
+  console.log('Auth Test - Cookies:', req.cookies);
+  console.log('Auth Test - Headers:', req.headers);
+  res.json({ 
+    message: 'Auth test route',
+    cookies: req.cookies,
+    headers: req.headers,
+    origin: req.headers.origin
+  });
+});
+
+// Add a health check route
+app.get('/api/v1/health', (req, res) => {
+  res.json({ 
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV
+  });
 });
 
 const PORT = process.env.PORT || 8000;
