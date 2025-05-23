@@ -7,14 +7,31 @@ const useApi = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const getAuthData = () => {
+    try {
+      const persistRoot = localStorage.getItem('persist:root');
+      if (!persistRoot) return null;
+
+      const { auth } = JSON.parse(persistRoot);
+      const authData = JSON.parse(auth);
+      return authData.user;
+    } catch (err) {
+      console.error('Error parsing auth data:', err);
+      return null;
+    }
+  };
+
   const apiCall = async (method, url, data = null, options = {}) => {
     try {
       setLoading(true);
       setError(null);
 
+      const user = getAuthData();
+      console.log('Making request as user:', user?.email);
+
       const config = {
         ...options,
-        withCredentials: true, // Important for cookies
+        withCredentials: true,
         headers: {
           ...options.headers,
           'Content-Type': 'application/json'
@@ -37,6 +54,21 @@ const useApi = () => {
           break;
         default:
           throw new Error(`Unsupported method: ${method}`);
+      }
+
+      // If we get a new token in response, update user data
+      if (response.data?.token) {
+        const currentUser = getAuthData();
+        if (currentUser) {
+          const updatedAuth = {
+            ...JSON.parse(localStorage.getItem('persist:root')),
+            auth: JSON.stringify({
+              ...JSON.parse(JSON.parse(localStorage.getItem('persist:root')).auth),
+              user: currentUser
+            })
+          };
+          localStorage.setItem('persist:root', JSON.stringify(updatedAuth));
+        }
       }
 
       return response.data;

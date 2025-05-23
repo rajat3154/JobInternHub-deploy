@@ -148,42 +148,16 @@ export const login = async (req, res) => {
                   });
             }
 
-            // ✅ INCLUDE role in token!
+            // Generate token
             const token = jwt.sign(
-                  { userId: user._id, role: user.role },
+                  { 
+                    userId: user._id, 
+                    role: user.role,
+                    email: user.email 
+                  },
                   process.env.SECRET_KEY,
                   { expiresIn: "1d" }
             );
-
-            console.log('Generated token:', token);
-            console.log('User ID:', user._id);
-            console.log('User Role:', user.role);
-
-            const userResponse =
-                  role === "student"
-                        ? {
-                              _id: user._id,
-                              fullname: user.fullname,
-                              email: user.email,
-                              phonenumber: user.phonenumber,
-                              role: user.role,
-                              status: user.status,
-                              profile: user.profile,
-                        }
-                        : {
-                              _id: user._id,
-                              companyname: user.companyname,
-                              email: user.email,
-                              cinnumber: user.cinnumber,
-                              role: user.role,
-                              status: user.status,
-                              profile: user.profile,
-                        };
-
-            const welcomeMessage =
-                  role === "student"
-                        ? `Welcome back ${user.fullname}`
-                        : `Welcome back ${user.companyname}`;
 
             // Set cookie for deployed website
             res.cookie("token", token, {
@@ -191,15 +165,28 @@ export const login = async (req, res) => {
                   httpOnly: true,
                   secure: true,
                   sameSite: "none",
-                  domain: ".onrender.com" // For your deployed backend
+                  domain: ".onrender.com"
             });
+
+            // Prepare user response
+            const userResponse = {
+                  _id: user._id,
+                  fullname: user.fullname,
+                  email: user.email,
+                  phonenumber: user.phonenumber,
+                  role: user.role,
+                  status: user.status,
+                  profile: user.profile
+            };
+
+            const welcomeMessage = `Welcome back ${user.fullname}`;
 
             // Send response
             return res.status(200).json({
                   message: welcomeMessage,
                   success: true,
                   user: userResponse,
-                  token // Include token in response as backup
+                  token
             });
       } catch (error) {
             console.error("Login Error:", error.message);
