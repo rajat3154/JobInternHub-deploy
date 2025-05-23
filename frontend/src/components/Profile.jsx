@@ -58,7 +58,14 @@ const Profile = () => {
           ? `${userType.toLowerCase() === 'student' ? STUDENT_API_END_POINT : RECRUITER_API_END_POINT}/${userId}`
           : `${currentUser.role.toLowerCase() === 'student' ? STUDENT_API_END_POINT : RECRUITER_API_END_POINT}/${currentUser._id}`;
 
-        const response = await axios.get(endpoint);
+        console.log('Fetching profile from:', endpoint);
+        const response = await axios.get(endpoint, {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        console.log('Profile response:', response.data);
         setProfileUser(response.data.data);
       } catch (error) {
         console.error('Error fetching user profile:', error);
@@ -68,7 +75,9 @@ const Profile = () => {
       }
     };
 
-    fetchUserProfile();
+    if (currentUser?._id) {
+      fetchUserProfile();
+    }
   }, [userId, userType, currentUser]);
 
   useEffect(() => {
