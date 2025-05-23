@@ -181,23 +181,19 @@ export const login = async (req, res) => {
                         ? `Welcome back ${user.fullname}`
                         : `Welcome back ${user.companyname}`;
 
-            // Set cookie options for cross-origin requests
+            // Set cookie options
             const cookieOptions = {
                   maxAge: 24 * 60 * 60 * 1000, // 1 day
                   httpOnly: true,
                   secure: true,
                   sameSite: "none",
-                  path: "/",
-                  domain: ".onrender.com" // Allow subdomains
+                  path: "/"
             };
-
-            // Log cookie options for debugging
-            console.log('Setting cookie with options:', cookieOptions);
 
             // Set the cookie
             res.cookie("token", token, cookieOptions);
 
-            // Send the response with token in body as backup
+            // Send the response
             return res.status(200).json({
                   message: welcomeMessage,
                   success: true,

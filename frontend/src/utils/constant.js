@@ -18,18 +18,9 @@ axios.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     
-    // Log request details
-    console.log('Request:', {
-      url: config.url,
-      method: config.method,
-      headers: config.headers,
-      withCredentials: config.withCredentials,
-      cookies: document.cookie
-    });
     return config;
   },
   (error) => {
-    console.error('Request Error:', error);
     return Promise.reject(error);
   }
 );
@@ -37,34 +28,14 @@ axios.interceptors.request.use(
 // Add response interceptor to handle errors and authentication
 axios.interceptors.response.use(
   (response) => {
-    // Log response details
-    console.log('Response:', {
-      status: response.status,
-      headers: response.headers,
-      data: response.data,
-      cookies: document.cookie
-    });
-
     // Store token in localStorage
     if (response.data?.token) {
-      console.log('Storing token in localStorage');
       localStorage.setItem('token', response.data.token);
     }
-
     return response;
   },
   (error) => {
-    // Log error details
-    console.error('Response Error:', {
-      status: error.response?.status,
-      data: error.response?.data,
-      headers: error.response?.headers,
-      cookies: document.cookie,
-      message: error.message
-    });
-    
     if (error.response?.status === 401) {
-      console.log('Clearing stored data due to 401');
       // Clear stored data
       localStorage.removeItem('token');
       localStorage.removeItem('user');
@@ -80,9 +51,7 @@ axios.interceptors.response.use(
 
 // Function to check if user is authenticated
 export const isAuthenticated = () => {
-  const token = localStorage.getItem('token');
-  console.log('Auth check - Token present:', !!token);
-  return !!token;
+  return !!localStorage.getItem('token');
 };
 
 // Function to get auth token
