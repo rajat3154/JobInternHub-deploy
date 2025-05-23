@@ -9,18 +9,29 @@ axios.defaults.headers.common['Content-Type'] = 'application/json';
 // Add request interceptor to handle authentication
 axios.interceptors.request.use(
   (config) => {
+    console.log('=== Request Start ===');
+    console.log('URL:', config.url);
+    console.log('Method:', config.method);
+    
     // Ensure withCredentials is set
     config.withCredentials = true;
     
     // Get token from localStorage
     const token = localStorage.getItem('token');
+    console.log('Token from localStorage:', token ? 'Present' : 'Missing');
+    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     
+    console.log('Request Headers:', config.headers);
+    console.log('With Credentials:', config.withCredentials);
+    console.log('=== Request End ===');
+    
     return config;
   },
   (error) => {
+    console.error('Request Error:', error);
     return Promise.reject(error);
   }
 );
@@ -28,14 +39,29 @@ axios.interceptors.request.use(
 // Add response interceptor to handle errors and authentication
 axios.interceptors.response.use(
   (response) => {
+    console.log('=== Response Start ===');
+    console.log('Status:', response.status);
+    console.log('Headers:', response.headers);
+    console.log('Data:', response.data);
+    
     // Store token in localStorage
     if (response.data?.token) {
+      console.log('Storing token in localStorage');
       localStorage.setItem('token', response.data.token);
     }
+    
+    console.log('=== Response End ===');
     return response;
   },
   (error) => {
+    console.error('=== Response Error ===');
+    console.error('Status:', error.response?.status);
+    console.error('Data:', error.response?.data);
+    console.error('Headers:', error.response?.headers);
+    console.error('Message:', error.message);
+    
     if (error.response?.status === 401) {
+      console.log('Clearing stored data due to 401');
       // Clear stored data
       localStorage.removeItem('token');
       localStorage.removeItem('user');
@@ -51,7 +77,9 @@ axios.interceptors.response.use(
 
 // Function to check if user is authenticated
 export const isAuthenticated = () => {
-  return !!localStorage.getItem('token');
+  const token = localStorage.getItem('token');
+  console.log('Auth check - Token present:', !!token);
+  return !!token;
 };
 
 // Function to get auth token

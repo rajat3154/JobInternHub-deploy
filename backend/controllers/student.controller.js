@@ -155,6 +155,10 @@ export const login = async (req, res) => {
                   { expiresIn: "1d" }
             );
 
+            console.log('Generated token:', token);
+            console.log('User ID:', user._id);
+            console.log('User Role:', user.role);
+
             const userResponse =
                   role === "student"
                         ? {
@@ -189,6 +193,10 @@ export const login = async (req, res) => {
                   sameSite: "none",
                   path: "/"
             };
+
+            console.log('Setting cookie with options:', cookieOptions);
+            console.log('Request headers:', req.headers);
+            console.log('Request origin:', req.headers.origin);
 
             // Set the cookie
             res.cookie("token", token, cookieOptions);

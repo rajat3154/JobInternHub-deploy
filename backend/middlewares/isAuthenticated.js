@@ -8,16 +8,17 @@ dotenv.config();
 // Authentication Middleware
 export const isAuthenticated = async (req, res, next) => {
       try {
-            // Log request details for debugging
-            console.log('Auth Request:', {
-                  cookies: req.cookies,
-                  headers: req.headers,
-                  url: req.originalUrl,
-                  origin: req.headers.origin
-            });
+            console.log('=== Auth Middleware Start ===');
+            console.log('Request URL:', req.originalUrl);
+            console.log('Request Method:', req.method);
+            console.log('Request Headers:', req.headers);
+            console.log('Request Cookies:', req.cookies);
+            console.log('Request Origin:', req.headers.origin);
 
             // Check for token in cookies first, then in Authorization header
             const token = req.cookies.token || req.headers.authorization?.split(' ')[1];
+            
+            console.log('Token from request:', token ? 'Present' : 'Missing');
             
             if (!token) {
                   console.log('No token found in cookies or headers');
@@ -29,6 +30,7 @@ export const isAuthenticated = async (req, res, next) => {
 
             try {
                   const decoded = jwt.verify(token, process.env.SECRET_KEY);
+                  console.log('Decoded token:', decoded);
                   
                   if (!decoded || !decoded.userId) {
                         console.log('Invalid token structure:', decoded);
@@ -46,6 +48,7 @@ export const isAuthenticated = async (req, res, next) => {
                         user = await Recruiter.findById(decoded.userId);
                   }
 
+                  console.log('Found user:', user ? 'Yes' : 'No');
                   if (!user) {
                         console.log('User not found:', decoded.userId);
                         return res.status(401).json({
@@ -61,10 +64,8 @@ export const isAuthenticated = async (req, res, next) => {
                         email: user.email
                   };
 
-                  // Debug log for verification
-                  console.log("Authenticated User:", req.user);
-
-                  // Proceed to the next middleware or route handler
+                  console.log('Authenticated user:', req.user);
+                  console.log('=== Auth Middleware End ===');
                   next();
             } catch (jwtError) {
                   console.error('JWT Verification Error:', jwtError);
