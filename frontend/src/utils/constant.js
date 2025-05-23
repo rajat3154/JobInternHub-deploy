@@ -1,5 +1,5 @@
 // API Endpoints
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'https://jobinternhub.onrender.com';
+const BACKEND_URL = 'https://jobinternhub.onrender.com';
 
 // Configure axios defaults
 import axios from 'axios';
@@ -12,6 +12,7 @@ axios.interceptors.request.use(
     // Ensure withCredentials is set
     config.withCredentials = true;
     
+    // Log request details
     console.log('Request:', {
       url: config.url,
       method: config.method,
@@ -21,6 +22,7 @@ axios.interceptors.request.use(
     return config;
   },
   (error) => {
+    console.error('Request Error:', error);
     return Promise.reject(error);
   }
 );
@@ -28,6 +30,7 @@ axios.interceptors.request.use(
 // Add response interceptor to handle errors and log responses
 axios.interceptors.response.use(
   (response) => {
+    // Log response details
     console.log('Response:', {
       status: response.status,
       headers: response.headers,
@@ -37,11 +40,13 @@ axios.interceptors.response.use(
     return response;
   },
   (error) => {
+    // Log error details
     console.error('Response Error:', {
       status: error.response?.status,
       data: error.response?.data,
       headers: error.response?.headers,
-      cookies: document.cookie
+      cookies: document.cookie,
+      message: error.message
     });
     
     if (error.response?.status === 401) {

@@ -24,23 +24,7 @@ app.use(cookieParser());
 
 // CORS configuration
 const corsOptions = {
-      origin: function(origin, callback) {
-            const allowedOrigins = [
-                  'https://jobinternhub.vercel.app',
-                  'http://localhost:5173',
-                  process.env.FRONTEND_URL
-            ].filter(Boolean);
-
-            // Allow requests with no origin (like mobile apps or curl requests)
-            if (!origin) return callback(null, true);
-
-            if (allowedOrigins.indexOf(origin) !== -1) {
-                  callback(null, true);
-            } else {
-                  console.log('Origin not allowed:', origin);
-                  callback(new Error('Not allowed by CORS'));
-            }
-      },
+      origin: ['https://jobinternhub.vercel.app', 'http://localhost:5173'],
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
@@ -53,11 +37,14 @@ app.use(cors(corsOptions));
 // Add a test route to verify CORS
 app.options('*', cors(corsOptions)); // Enable pre-flight for all routes
 
-app.get('/api/v1/test-cors', (req, res) => {
+// Add a test route to verify authentication
+app.get('/api/v1/test-auth', (req, res) => {
+      console.log('Cookies:', req.cookies);
+      console.log('Headers:', req.headers);
       res.json({ 
-            message: 'CORS is working!',
-            frontendUrl: process.env.FRONTEND_URL,
-            allowedOrigins: corsOptions.origin
+            message: 'Auth test route',
+            cookies: req.cookies,
+            headers: req.headers
       });
 });
 

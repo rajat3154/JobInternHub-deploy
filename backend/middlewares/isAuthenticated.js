@@ -1,44 +1,61 @@
 import jwt from "jsonwebtoken";
+import { Student } from "../models/student.model.js";
+import { Recruiter } from "../models/recruiter.model.js";
 import dotenv from "dotenv";
 
 dotenv.config();
 
 // Authentication Middleware
-const isAuthenticated = async (req, res, next) => {
+export const isAuthenticated = async (req, res, next) => {
       try {
-            // Debug request headers and cookies
-            console.log('Request headers:', req.headers);
-            console.log('Request cookies:', req.cookies);
+            // Log request details for debugging
+            console.log('Auth Request:', {
+                  cookies: req.cookies,
+                  headers: req.headers,
+                  url: req.originalUrl
+            });
 
-            // Retrieve token from cookies
             const token = req.cookies.token;
             
-            // Check if token exists
             if (!token) {
                   console.log('No token found in cookies');
                   return res.status(401).json({
-                        message: "User not authenticated, token missing",
                         success: false,
+                        message: "Please login first",
                   });
             }
 
-            // Verify the token
             const decoded = jwt.verify(token, process.env.SECRET_KEY);
-            console.log('Decoded token:', decoded);
-
-            // Ensure the decoded token has the required userId
+            
             if (!decoded || !decoded.userId) {
-                  console.log('Invalid token or missing userId');
+                  console.log('Invalid token structure:', decoded);
                   return res.status(401).json({
-                        message: "Invalid token or missing userId",
                         success: false,
+                        message: "Invalid token",
                   });
             }
 
-            // Attach the user info to the request
+            // Find user based on role
+            let user;
+            if (decoded.role === "student") {
+                  user = await Student.findById(decoded.userId);
+            } else if (decoded.role === "recruiter") {
+                  user = await Recruiter.findById(decoded.userId);
+            }
+
+            if (!user) {
+                  console.log('User not found:', decoded.userId);
+                  return res.status(401).json({
+                        success: false,
+                        message: "User not found",
+                  });
+            }
+
+            // Attach user info to request
             req.user = {
-                  id: decoded.userId,
-                  role: decoded.role,
+                  id: user._id,
+                  role: user.role,
+                  email: user.email
             };
 
             // Debug log for verification
@@ -48,10 +65,10 @@ const isAuthenticated = async (req, res, next) => {
             next();
 
       } catch (error) {
-            console.error("Authentication Error:", error.message);
+            console.error('Auth Error:', error);
             return res.status(401).json({
-                  message: "Authentication failed",
                   success: false,
+                  message: "Authentication failed",
                   error: error.message
             });
       }
