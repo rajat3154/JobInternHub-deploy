@@ -1,15 +1,11 @@
-// CORS configuration
+// Update CORS configuration
 app.use(cors({
   origin: [
-    'https://jobinternhub.onrender.com',
-    'http://localhost:5173',
-    'https://jobinternhub.vercel.app'
+    'https://jobinternhub.vercel.app',
+    'http://localhost:5173'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   exposedHeaders: ['Set-Cookie']
 }));
-
-// Cookie parser middleware
-app.use(cookieParser()); 
